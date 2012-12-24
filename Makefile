@@ -7,3 +7,8 @@ win:
 
 script:
 	carton exec ${ECUKES} --script features
+
+carton:
+	carton install
+
+travis: carton win script
