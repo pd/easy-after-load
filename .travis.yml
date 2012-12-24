@@ -19,7 +19,6 @@ before_install:
     fi
 env:
   matrix:
-    - EMACS=emacs
     - EMACS=emacs24
     - EMACS=emacs-snapshot
   global:
