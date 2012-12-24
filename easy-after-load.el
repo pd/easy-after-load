@@ -92,6 +92,7 @@ by `easy-after-load'."
         (setq after-load-alist
               (delq (assoc feature after-load-alist) after-load-alist))))))
 
+;;;###autoload
 (defun easy-after-load (&optional directory)
   "Add `eval-after-load' statements for all features with corresponding
 files in DIRECTORY (or `easy-after-load-directory' if nil).
