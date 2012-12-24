@@ -55,15 +55,42 @@ contents of the first matching subexpression."
     (condition-case err
         (let ((feature (funcall easy-after-load-function filename)))
           (and feature (cons path (intern feature))))
-      (error (message "easy-after-load-function failed on %s" filename)
+      (error (message "easy-after-load-function failed on %s: %s" filename (cadr err))
              nil))))
-
-(easy-after-load--get-feature (expand-file-name "~/.emacs.d/after-loads/init-ruby-mode.el"))
 
 (defun easy-after-load--eval-after-load (after-load)
   (when after-load
     (eval-after-load (cdr after-load)
-      `(load ,(car after-load)))))
+      `(progn
+         (ignore "added by easy-after-load")
+         (load ,(car after-load))))))
+
+(defun easy-after-load--alist-entries ()
+  "Returns a list of (FEATURE . ENTRY) that were added to `after-load-alist'
+by `easy-after-load'."
+  (let (added)
+    (dolist (entry after-load-alist)
+      (let ((feature (car entry))
+            (forms   (cdr entry)))
+        (dolist (form forms)
+          (with-temp-buffer
+            (princ form (current-buffer))
+            (when (string-match-p "added by easy-after-load" (buffer-string))
+              (setq added (cons (cons feature form)
+                                added)))))))
+    added))
+
+(defun easy-after-load-reset ()
+  "Removes all entries in `after-load-alist' which were added by
+`easy-after-load'."
+  (dolist (added (easy-after-load--alist-entries))
+    (let* ((feature   (car added))
+           (rm-form   (cdr added))
+           (full-form (assoc feature after-load-alist)))
+      (delq rm-form full-form)
+      (when (equal full-form (list feature))
+        (setq after-load-alist
+              (delq (assoc feature after-load-alist) after-load-alist))))))
 
 (defun easy-after-load (&optional directory)
   "Add `eval-after-load' statements for all features with corresponding
@@ -72,6 +99,7 @@ files in DIRECTORY (or `easy-after-load-directory' if nil).
 See also `easy-after-load-pattern', `easy-after-load-function'."
   (let* ((directory   (file-name-as-directory (or directory easy-after-load-directory)))
          (paths       (easy-after-load--files directory)))
+    (easy-after-load-reset)
     (mapc 'easy-after-load--eval-after-load
           (mapcar 'easy-after-load--get-feature paths))))
 

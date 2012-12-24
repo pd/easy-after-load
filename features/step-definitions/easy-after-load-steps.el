@@ -22,9 +22,21 @@
          (let ((easy-after-load-test-directory easy-after-load-test-extra-dir))
            (Given (format "I have an \"%s\" after-load file" filename)))))
 
+(Given "^I am recording every file found by easy-after-load$"
+       (lambda ()
+         (setq easy-after-load-test-files-seen nil
+               easy-after-load-function (lambda (file)
+                                          (setq easy-after-load-test-files-seen
+                                                (cons file easy-after-load-test-files-seen))
+                                          (easy-after-load-apply-pattern file)))))
+
 (Given "^my easy-after-load-function returns the filename sans extension$"
        (lambda ()
          (setq easy-after-load-function 'file-name-sans-extension)))
+
+(Given "^my easy-after-load-function just raises errors$"
+       (lambda ()
+         (setq easy-after-load-function (lambda (f) (error "Failure!")))))
 
 (When "^I run easy-after-load$"
       (lambda () (easy-after-load)))
@@ -34,34 +46,25 @@
          ; Ignoring dir, it's really just easy-after-load-test-extra-dir
          (easy-after-load easy-after-load-test-extra-dir)))
 
-(Then "^an after-load-alist entry should be present for '\\(.+\\)$"
-      (lambda (feature)
-        (should (not (null (-first (lambda (e) (eq e (intern feature)))
-                                   (mapcar 'car after-load-alist)))))))
+(When "^I add a custom eval-after-load line for '\\(.+\\)$"
+       (lambda (mode)
+         (eval-after-load (intern mode) '(message "Custom after-load!"))))
 
+(When "^I remove my \"\\(.+\\)\" after-load file$"
+      (lambda (filename)
+        (delete-file (expand-file-name filename easy-after-load-test-directory))))
 
+(Then "^I should have seen message \"\\(.+\\)\"$"
+      (lambda (msg)
+        (let ((matches (-select (lambda (seen) (equal msg seen))
+                                ecukes-message-log)))
+          (should (not (zerop (length matches)))))))
 
+(Then "^\\(.+\\) after-load-alist entries should be present for '\\(.+\\)$"
+      (lambda (count feature)
+        (let ((entry (assoc (intern feature) after-load-alist)))
+          (should (= (string-to-int count) (length (cdr entry)))))))
 
-;; todo
-(And "^I am recording every file found by easy-after-load$"
-       (lambda ()
-         (error "unimpl")))
-
-(Then "^I should not see a message about \"\\([^\"]+\\)\"$"
-       (lambda (arg)
-         (error "unimpl")
-         ))
-
-(Then "^I have no idea what will happen, actually$"
-       (lambda ()
-         (error "unimpl")
-         ))
-
-(When "^I add a custom eval-after-load line for \"\\([^\"]+\\)\"$"
-       (lambda (arg)
-         (error "unimpl")))
-
-(Then "^only one after-load-alist entry should be present for '\\(.+\\)$"
-       (lambda (arg)
-         (error "unimpl")
-         ))
+(Then "^easy-after-load should never have seen \"\\(.+\\)\"$"
+      (lambda (file)
+        (should (not (member file easy-after-load-test-files-seen)))))
