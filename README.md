@@ -1,4 +1,6 @@
 # easy-after-load
+[![Build Status](https://travis-ci.org/pd/easy-after-load.png)](https://travis-ci.org/pd/easy-after-load)
+
 Easily manage the 9,000 `eval-after-load` calls scattered throughout
 your `~/.emacs.d` directory.
 
