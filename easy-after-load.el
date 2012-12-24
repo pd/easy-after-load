@@ -1,4 +1,4 @@
-;;; easy-after-load.el -- eval-after-load for all files in a directory
+;;; easy-after-load.el --- eval-after-load for all files in a directory
 
 ;; Author: Kyle Hargraves
 ;; URL: https://github.com/pd/easy-after-load
