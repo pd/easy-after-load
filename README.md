@@ -23,6 +23,16 @@ loaded immediately after Emacs loads `ruby-mode.el`. You can then add to your
 (add-hook 'ruby-mode 'eldoc-mode)
 ```
 
+Additionally, a function `easy-auto-mode` makes maintaining
+your `auto-mode-alist` entries much simpler:
+
+```scheme
+(easy-auto-mode
+  '((ruby-mode "\\.rake$" "Rakefile$" "Guardfile$" "Gemfile$"
+               "\\.gemspec$" "\\.?irbrc$" "\\.rabl$" "\\.ru$")
+    (markdown-mode "\\.md$" "\\.markdown$")))
+```
+
 ## Customization
 By default, `easy-after-load` looks for files matching `after-*.el` in the
 directory `<user-emacs-directory>/after-loads`. You can alter this behavior

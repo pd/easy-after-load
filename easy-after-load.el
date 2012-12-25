@@ -104,6 +104,21 @@ See also `easy-after-load-pattern', `easy-after-load-function'."
     (mapc 'easy-after-load--eval-after-load
           (mapcar 'easy-after-load--get-feature paths))))
 
+;;;###autoload
+(defun easy-auto-mode (modes)
+  "Add entries to `auto-mode-alist' for each element in MODES.
+
+Each element looks like (MODE REGEXP REGEXP ...).
+
+Example:
+    (easy-auto-mode
+     '((ruby-mode \"\\\\.rake$\" \"^Rakefile$\")
+       (markdown-mode \"\\\\.md$\")))"
+  (dolist (entry modes)
+    (mapc (lambda (regexp)
+              (add-to-list 'auto-mode-alist (cons regexp (car entry))))
+            (cdr entry))))
+
 (provide 'easy-after-load)
 
 ;;; easy-after-load.el ends here

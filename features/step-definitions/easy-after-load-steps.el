@@ -1,3 +1,5 @@
+;; easy-after-load
+
 (Given "^I have an easy-after-load directory$"
        (lambda ()
          ; nothing to do
@@ -68,3 +70,12 @@
 (Then "^easy-after-load should never have seen \"\\(.+\\)\"$"
       (lambda (file)
         (should (not (member file easy-after-load-test-files-seen)))))
+
+;; easy-auto-mode
+(When "^I open a file \"\\(.+\\)\"$"
+      (lambda (filename)
+        (find-file filename)))
+
+(Then "^the major mode should be '\\(.+\\)$"
+      (lambda (mode)
+        (should (equal major-mode (intern mode)))))
