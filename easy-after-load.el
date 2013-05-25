@@ -63,7 +63,7 @@ contents of the first matching subexpression."
     (eval-after-load (cdr after-load)
       `(progn
          (ignore "added by easy-after-load")
-         (load ,(car after-load))))))
+         (load ,(car (file-name-sans-extension after-load)))))))
 
 (defun easy-after-load--alist-entries ()
   "Returns a list of (FEATURE . ENTRY) that were added to `after-load-alist'
